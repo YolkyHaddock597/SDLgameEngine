@@ -144,6 +144,8 @@ Player player1;
 #define PIPE_HEIGHT 100
 #define DIST 90
 
+int score = 0;
+
 Pipe set_new_pipes(Pipe p, int pos) {
     int random_number = rand();
     //printf("%d\n", random_number);
@@ -246,7 +248,7 @@ void draw_digit(int digit, int x, int y) {
                 int px = x + j * RECT_SIZE;
                 int py = y + i * RECT_SIZE;
                 // Draw the enlarged rectangle
-                draw_rect(px, py, px + RECT_SIZE - 1, py + RECT_SIZE - 1, 255, 70, 90);
+                draw_rect(px, py, px + RECT_SIZE - 1, py + RECT_SIZE - 1, 255, 255, 255);
             }
         }
     }
@@ -260,29 +262,35 @@ void render_nums(int num, int x, int y) {
         temp /= 10;
         numDigits++;
     }
+    if (numDigits == 0) {
+        numDigits = 1; // If num is 0, it still has one digit
+    }
     int max_width = numDigits * DIGIT_WIDTH * RECT_SIZE;
 
     // Clear the area where numbers will be rendered
     clear_area(x - max_width / 2, y, max_width, NUM_ROWS * RECT_SIZE);
 
     // Store digits in an array
-    int digits[MAX_DIGITS];
+    int digits[MAX_DIGITS] = {0}; // Initialize array with 0s
     temp = num;
-    for (int i = MAX_DIGITS - 1; i >= 0; i--) {
-        digits[i] = temp % 10;
-        temp /= 10;
+    int i = MAX_DIGITS - 1; // Start from the end of the array
+    while (temp != 0 && i >= 0) {
+        digits[i] = temp % 10; // Store the last digit in the array
+        temp /= 10; // Remove the last digit from the number
+        i--; // Move to the next position in the array
     }
 
     // Calculate initial x position
     int xPos = x - DIGIT_WIDTH * RECT_SIZE * numDigits / 2;
 
     // Render each digit
-    for (int u = 0; u < numDigits; u++) {
+    for (int u = MAX_DIGITS - numDigits; u < MAX_DIGITS; u++) {
         draw_digit(digits[u], xPos, y);
         // Update x position for the next digit
         xPos += DIGIT_WIDTH * RECT_SIZE;
     }
 }
+
 
 void draw_char()
 {
@@ -341,11 +349,30 @@ void render_pipes(){
                 random_number += 50;
             }
             pipes[i] = set_new_pipes(p, random_number);
+            score = score + 1;
+
         }
 
-        if (SCREEN_WIDTH/2 >= x && SCREEN_WIDTH/2 <= x2){
-            printf("yes\n");
-        }    
+        bool isCollision = false;
+
+        // Top pipe collision check
+        if (player1.x + 10 >= x && player1.x <= x2 && player1.y + 10 >= y && player1.y <= y1) {
+            isCollision = true;
+        }
+        // Bottom pipe collision check
+        if (player1.x + 10 >= x && player1.x <= x2 && player1.y + 10 >= y2 && player1.y <= y3) {
+            isCollision = true;
+        }
+
+        
+
+        if (isCollision) {
+            printf("Collision detected!\n");
+
+            SDL_DestroyRenderer(state.renderer);
+            SDL_DestroyWindow(state.window);
+            SDL_Quit();
+        }  
 
         draw_rect(x, y, x1, y1, 255, 0, 0);
         draw_rect(x2, y2, x3, y3, 255, 0, 0);
@@ -356,6 +383,9 @@ void render_pipes(){
         pipes[i].x3 -= SPEED;
     }
 }
+
+
+
 
 
 void render()
@@ -369,8 +399,12 @@ void render()
 
 
     render_pipes();
-    draw_digit(24, 300, 100);
+    
     player1.y += 2;
+
+    
+
+    render_nums(score, 70, 10);
     // Update the screen
     SDL_RenderPresent(state.renderer);
 

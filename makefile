@@ -4,11 +4,11 @@ LIBS = $(shell sdl2-config --libs)
 
 .PHONY: all clean
 
-all: myprogram
-	./myprogram
+all: a.out
+	./a.out
 
-myprogram: main.c
+a.out: main.c
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
 clean:
-	rm -f myprogram
+	rm -f a.out
