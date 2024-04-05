@@ -106,6 +106,7 @@ int char_pos[2] = {100, 100};
 int draw_x[SCREEN_WIDTH] = {};
 int draw_y[SCREEN_HEIGHT] = {};
 
+int score = 0;
 
 typedef struct {
     int x, y; // Player position
@@ -144,7 +145,7 @@ Player player1;
 #define PIPE_HEIGHT 100
 #define DIST 90
 
-int score = 0;
+
 
 Pipe set_new_pipes(Pipe p, int pos) {
     int random_number = rand();
@@ -172,7 +173,7 @@ void init(){
 
     int i;
     int start_pos[10] = { 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200 };
-
+    score = 0;
 
     for (i = 0; i < MAX_PIPES; i++){
         Pipe p;
@@ -369,9 +370,11 @@ void render_pipes(){
         if (isCollision) {
             printf("Collision detected!\n");
 
-            SDL_DestroyRenderer(state.renderer);
-            SDL_DestroyWindow(state.window);
-            SDL_Quit();
+            //SDL_DestroyRenderer(state.renderer);
+            //SDL_DestroyWindow(state.window);
+            //SDL_Quit();
+
+            init();
         }  
 
         draw_rect(x, y, x1, y1, 255, 0, 0);
